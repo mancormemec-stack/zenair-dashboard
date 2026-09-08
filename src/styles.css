@@ -228,3 +228,13 @@ img{max-width:100%}
 .eval__head{display:flex;align-items:center;gap:.5rem;font-size:.78rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--accent-ink);margin-bottom:.35rem}
 .eval p{font-size:.88rem;color:var(--ink-soft);margin:.2rem 0}
 .eval p b{color:var(--ink)}
+
+/* ---------- quest guidance for members ---------- */
+.tally{margin-left:.5rem;font-family:var(--font-sans);font-size:.68rem;font-weight:700;letter-spacing:.03em;
+  text-transform:uppercase;color:var(--on-accent);background:var(--accent);padding:.12rem .45rem;border-radius:999px;vertical-align:middle}
+.qintro{font-size:.86rem;line-height:1.5;color:var(--ink-soft);background:var(--surface-2);
+  border:1px solid var(--line);border-radius:9px;padding:.7rem .85rem;margin-bottom:.8rem}
+.qintro b{color:var(--ink)}
+.card--todo{border-left:3px solid var(--accent)}
+.steps-hint{font-size:.88rem;color:var(--accent-ink);background:var(--accent-soft);
+  border-radius:8px;padding:.55rem .75rem;margin:0 0 1rem}

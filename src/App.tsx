@@ -421,7 +421,9 @@ function QuestTab({ user }: { user: Member }) {
   const toast = useToast();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
-  const [filter, setFilter] = useState<"tutte" | "da-fare" | "attesa" | "chiuse">("tutte");
+  const [filter, setFilter] = useState<"tutte" | "da-fare" | "attesa" | "chiuse">(
+    user.is_owner ? "tutte" : "da-fare",
+  );
 
   const quests = useQuery({
     queryKey: ["quests"],
@@ -429,7 +431,11 @@ function QuestTab({ user }: { user: Member }) {
     refetchInterval: 20_000,
   });
 
-  const list = (quests.data ?? []).filter((q) => {
+  const all = quests.data ?? [];
+  const todoCount = user.is_owner
+    ? 0
+    : all.filter((q) => q.status === "aperta" || q.status === "da-rifare").length;
+  const list = all.filter((q) => {
     if (filter === "tutte") return true;
     if (filter === "da-fare") return ["aperta", "in-corso", "da-rifare"].includes(q.status);
     if (filter === "attesa") return q.status === "inviata";
@@ -447,7 +453,10 @@ function QuestTab({ user }: { user: Member }) {
     <div className={"work" + (detailOpen ? " detail-open" : "")}>
       <div className="pane pane-list">
         <div className="pane-head">
-          <h2>Quest</h2>
+          <h2>
+            Quest
+            {!user.is_owner && todoCount > 0 ? <span className="tally">{todoCount} da fare</span> : null}
+          </h2>
           {user.is_owner ? (
             <button
               className="btn btn-primary btn-sm"
@@ -460,6 +469,13 @@ function QuestTab({ user }: { user: Member }) {
             </button>
           ) : null}
         </div>
+        {!user.is_owner ? (
+          <div className="qintro">
+            Ciao <b>{user.name}</b>. Qui sotto ci sono le ricerche che Mattia ti ha assegnato.
+            Aprine una, leggi cosa serve, cerca, poi scrivi cosa hai trovato e premi{" "}
+            <b>«Invia come risultato»</b>. L&apos;AI ti dà subito un voto e i consigli per migliorare.
+          </div>
+        ) : null}
         <div className="filters">
           {(
             [
@@ -486,10 +502,12 @@ function QuestTab({ user }: { user: Member }) {
           list.map((q) => {
             const st = STATUS[q.status] ?? STATUS.aperta;
             const df = DIFF[q.difficulty] ?? DIFF.medio;
+            const todo = !user.is_owner && (q.status === "aperta" || q.status === "da-rifare");
+            const stLabel = !user.is_owner && q.status === "aperta" ? "da fare" : st.label;
             return (
               <button
                 key={q.id}
-                className="card"
+                className={"card" + (todo ? " card--todo" : "")}
                 aria-current={activeId === q.id}
                 onClick={() => {
                   setActiveId(q.id);
@@ -498,9 +516,9 @@ function QuestTab({ user }: { user: Member }) {
               >
                 <span className="t">{q.title}</span>
                 <span className="meta">
-                  <span className={"tag " + st.cls}>{st.label}</span>
+                  <span className={"tag " + st.cls}>{stLabel}</span>
                   <span className={"tag " + df.cls}>{df.label}</span>
-                  <span>{assigneeLabel(q.assignee)}</span>
+                  {user.is_owner ? <span>{assigneeLabel(q.assignee)}</span> : null}
                   <span>· {whenShort(q.updated_at)}</span>
                 </span>
               </button>
@@ -716,6 +734,18 @@ function QuestDetail({
         {quest.due ? ` · scadenza: ${quest.due}` : ""}
       </div>
       {quest.brief ? <div className="brief">{quest.brief}</div> : null}
+
+      {isMember ? (
+        <div className="steps-hint">
+          {quest.status === "da-rifare"
+            ? "Mattia ha rimandato indietro — leggi il suo commento qui sotto e riprova."
+            : quest.status === "inviata"
+              ? "Risultato inviato. Aspetta il giudizio di Mattia."
+              : quest.status === "approvata"
+                ? "Approvata ✓ — niente da fare qui."
+                : "Cerca quello che serve, poi scrivi qui sotto cosa hai trovato (più eventuali link) e premi «Invia come risultato»."}
+        </div>
+      ) : null}
 
       <div className="detail-actions">
         {isMember && quest.status === "aperta" ? (
