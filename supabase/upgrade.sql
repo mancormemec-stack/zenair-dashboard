@@ -33,9 +33,6 @@ from (values
   ('Le regole UE: siamo dentro la direttiva tabacco?',
    'Verifica se un prodotto senza tabacco e senza nicotina che si "aspira" rientra nella TPD (direttiva tabacco UE) o no. Trova il testo o una guida ufficiale.',
    'both', 'alto'),
-  ('Preventivo stampo per le capsule',
-   'Contatta o trova online 2 stampisti (Italia o EU) per uno stampo di piccola serie per una capsula di plastica. Prezzo indicativo e minimo d''ordine.',
-   'diego', 'medio'),
   ('Materiale della capsula: plastica vs carta',
    'Confronta capsula in plastica riciclabile e capsula in carta/bioplastica compostabile: costo, fattibilità, tenuta dell''aroma. Pro e contro.',
    'pier', 'medio'),
@@ -44,9 +41,6 @@ from (values
    'diego', 'medio'),
   ('10 ex fumatori da far provare al prototipo',
    'Fai una lista di 10 persone (conoscenti) ex fumatori o che vogliono smettere, disposte a provare il prototipo e darci un giudizio onesto.',
-   'both', 'basso'),
-  ('Costo di un dossier di sicurezza inalatoria',
-   'Trova 2 laboratori o consulenti (Italia/EU) che fanno test di sicurezza per inalazione. Chiedi o stima quanto costa il test completo su 2-3 aromi.',
-   'pier', 'alto')
+   'both', 'basso')
 ) as v(title, brief, assignee, difficulty)
 where (select count(*) from public.quests) < 2;
