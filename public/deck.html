@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Zen-Air Investor Deck</title>
+<meta name="description" content="Deck seed per Zen-Air, inalatore aromatico a flusso forzato: problema, prodotto, mercato, modello e proiezioni finanziarie.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&display=swap">
+
+<style>
+  :root{
+    --paper:#EDF1EF;
+    --surface:#F7F9F8;
+    --surface-2:#E4EBE8;
+    --ink:#16201E;
+    --ink-soft:#3C4A46;
+    --muted:#697772;
+    --line:#D1DBD6;
+    --accent:#0E7A66;
+    --accent-ink:#0B5F50;
+    --accent-soft:#D3E7E0;
+    --amber:#A9631F;
+    --amber-soft:#EBDCC7;
+    --series-1:#0E8A72;
+    --series-2:#C67B2E;
+    --focus:#0E7A66;
+    --shadow:0 1px 2px rgba(20,40,35,.06), 0 12px 32px -12px rgba(20,40,35,.14);
+    --font-display:'Spectral','Iowan Old Style','Palatino Linotype',Georgia,serif;
+    --font-sans:'Hanken Grotesk',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --paper:#0F1513;
+      --surface:#171F1C;
+      --surface-2:#212B27;
+      --ink:#E7ECE9;
+      --ink-soft:#B0BCB7;
+      --muted:#7F8D88;
+      --line:#293430;
+      --accent:#4FB89F;
+      --accent-ink:#7FCEBB;
+      --accent-soft:#1D3630;
+      --amber:#D89C60;
+      --amber-soft:#33281C;
+      --series-1:#34A088;
+      --series-2:#C17F38;
+      --focus:#4FB89F;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 16px 40px -16px rgba(0,0,0,.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0F1513;
+    --surface:#171F1C;
+    --surface-2:#212B27;
+    --ink:#E7ECE9;
+    --ink-soft:#B0BCB7;
+    --muted:#7F8D88;
+    --line:#293430;
+    --accent:#4FB89F;
+    --accent-ink:#7FCEBB;
+    --accent-soft:#1D3630;
+    --amber:#D89C60;
+    --amber-soft:#33281C;
+    --series-1:#34A088;
+    --series-2:#C17F38;
+    --focus:#4FB89F;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 16px 40px -16px rgba(0,0,0,.55);
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html{ -webkit-text-size-adjust:100% }
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-sans);
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .deck{
+    position:fixed;
+    inset:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    scroll-snap-type:y proximity;
+    scroll-behavior:smooth;
+    scroll-padding-top:0;
+  }
+  @media (prefers-reduced-motion:reduce){
+    .deck{scroll-behavior:auto}
+  }
+
+  .slide{
+    scroll-snap-align:start;
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:clamp(1rem,2.4vh,1.8rem);
+    padding:clamp(2.2rem,6vw,5.5rem) clamp(1.4rem,7vw,7rem) clamp(4rem,10vh,6rem);
+    position:relative;
+    border-bottom:1px solid var(--line);
+  }
+  .slide__inner{ width:min(1080px,100%); margin:0 auto; display:flex; flex-direction:column; gap:clamp(.9rem,2.2vh,1.5rem) }
+
+  .eyebrow{
+    font-size:.72rem;
+    font-weight:600;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--accent-ink);
+    display:flex;
+    align-items:center;
+    gap:.7rem;
+  }
+  .eyebrow::after{content:"";height:1px;flex:1;background:var(--line);max-width:120px}
+
+  h1,h2,h3{margin:0;font-family:var(--font-display);font-weight:400;text-wrap:balance;line-height:1.12}
+  h1{font-size:clamp(2.6rem,6.2vw,5rem);font-weight:300;letter-spacing:-.01em}
+  h2{font-size:clamp(1.8rem,3.6vw,2.9rem)}
+  .lead{
+    font-family:var(--font-display);
+    font-size:clamp(1.08rem,1.8vw,1.4rem);
+    line-height:1.5;
+    color:var(--ink-soft);
+    max-width:64ch;
+  }
+  p{margin:0;max-width:64ch}
+  .body{color:var(--ink-soft)}
+  .fine{font-size:.8rem;color:var(--muted);max-width:70ch}
+  strong{font-weight:600;color:var(--ink)}
+  em.q{font-style:italic;font-family:var(--font-display)}
+
+  ul.points{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.85rem;max-width:70ch}
+  ul.points li{position:relative;padding-left:1.4rem;color:var(--ink-soft)}
+  ul.points li::before{
+    content:"";position:absolute;left:0;top:.62em;width:.5rem;height:.5rem;border-radius:50%;
+    border:1.5px solid var(--accent);
+  }
+
+  .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(1rem,3vw,2.4rem)}
+  .cols--2{grid-template-columns:repeat(2,1fr)}
+  @media (max-width:760px){ .cols,.cols--2{grid-template-columns:1fr} }
+
+  .col h3{font-size:1.12rem;margin-bottom:.4rem;color:var(--ink)}
+  .col p{font-size:.95rem;color:var(--ink-soft)}
+  .col .n{
+    font-family:var(--font-sans);font-weight:600;font-size:.78rem;letter-spacing:.16em;
+    color:var(--accent-ink);display:block;margin-bottom:.5rem
+  }
+
+  .zeros{display:flex;flex-wrap:wrap;gap:.7rem}
+  .zeros span{
+    font-family:var(--font-display);font-size:1.02rem;
+    padding:.5rem 1.1rem;border:1px solid var(--line);border-radius:2px;background:var(--surface);
+    color:var(--ink);
+  }
+  .zeros b{color:var(--accent-ink);font-weight:500}
+
+  .statband{
+    display:flex;flex-wrap:wrap;gap:clamp(1rem,4vw,3rem);
+    padding:1.1rem 1.3rem;background:var(--surface);border:1px solid var(--line);border-radius:2px;
+  }
+  .stat .v{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:600;font-variant-numeric:tabular-nums;line-height:1.1;color:var(--ink)}
+  .stat .k{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:.25rem}
+
+  .tiers{display:flex;flex-direction:column;gap:.7rem}
+  .tier{
+    display:grid;grid-template-columns:auto 1fr;gap:.3rem 1.4rem;align-items:baseline;
+    padding:1rem 1.2rem;border:1px solid var(--line);border-radius:2px;background:var(--surface);
+  }
+  .tier .amt{font-family:var(--font-display);font-size:clamp(1.6rem,3.4vw,2.4rem);color:var(--ink);grid-row:span 2;align-self:center}
+  .tier .lab{font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.74rem;color:var(--accent-ink)}
+  .tier .desc{font-size:.9rem;color:var(--ink-soft)}
+
+  table.model{border-collapse:collapse;width:100%;max-width:680px;font-variant-numeric:tabular-nums}
+  table.model caption{text-align:left;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding-bottom:.6rem}
+  table.model th,table.model td{text-align:right;padding:.6rem .8rem;border-bottom:1px solid var(--line);font-size:.92rem}
+  table.model th:first-child,table.model td:first-child{text-align:left;color:var(--ink)}
+  table.model thead th{color:var(--muted);font-weight:600;font-size:.76rem;letter-spacing:.06em;text-transform:uppercase}
+  table.model tbody td{color:var(--ink-soft)}
+  table.model tbody tr:last-child td{border-bottom:none}
+
+  .split{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(1.4rem,4vw,3.2rem);align-items:center}
+  @media (max-width:860px){ .split{grid-template-columns:1fr} }
+
+  .figure{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:1.1rem 1.2rem;box-shadow:var(--shadow)}
+  .figure svg{display:block;width:100%;height:auto}
+  .figure figcaption{font-size:.78rem;color:var(--muted);margin-top:.7rem;letter-spacing:.02em}
+
+  .refill{display:flex;flex-direction:column;gap:.75rem;padding:1.1rem 1.2rem;border:1px solid var(--line);border-radius:3px;background:var(--surface)}
+  .refill__lead{font-size:.92rem;color:var(--ink-soft);max-width:none}
+  .steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem 1.4rem}
+  .steps li{display:flex;gap:.6rem;align-items:flex-start;font-size:.9rem;color:var(--ink-soft)}
+  .steps .s{flex:none;width:1.5rem;height:1.5rem;border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);font-weight:600;font-size:.8rem;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+  @media (max-width:760px){ .steps{grid-template-columns:1fr} }
+
+  .ubar{display:flex;flex-direction:column;gap:.9rem;max-width:560px}
+  .ubar .row{display:flex;flex-direction:column;gap:.3rem}
+  .ubar .row .top{display:flex;justify-content:space-between;font-size:.86rem;color:var(--ink-soft)}
+  .ubar .track{display:flex;gap:2px;height:22px}
+  .ubar .seg{border-radius:2px}
+  .ubar .seg.cogs{background:var(--surface-2);border:1px solid var(--line)}
+  .ubar .seg.contrib{background:var(--series-1)}
+
+  .funds{display:flex;flex-direction:column;gap:.8rem;max-width:620px}
+  .funds .f{display:grid;grid-template-columns:1fr auto;gap:.35rem .8rem;align-items:baseline}
+  .funds .f .name{font-size:.95rem;color:var(--ink-soft)}
+  .funds .f .pct{font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .funds .f .bar{grid-column:1/-1;height:8px;border-radius:2px;background:var(--surface-2);overflow:hidden}
+  .funds .f .bar i{display:block;height:100%;background:var(--accent);border-radius:2px}
+
+  .timeline{display:flex;flex-direction:column;gap:0;border-left:2px solid var(--line);margin-left:.4rem}
+  .timeline .ev{position:relative;padding:0 0 1.4rem 1.7rem}
+  .timeline .ev:last-child{padding-bottom:0}
+  .timeline .ev::before{
+    content:"";position:absolute;left:-7px;top:.35rem;width:12px;height:12px;border-radius:50%;
+    background:var(--paper);border:2px solid var(--accent)
+  }
+  .timeline .ev .when{font-weight:600;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink)}
+  .timeline .ev .what{font-size:.95rem;color:var(--ink-soft);margin-top:.2rem}
+
+  .risks{display:flex;flex-direction:column;gap:1rem}
+  .risk{display:grid;grid-template-columns:auto 1fr;gap:.3rem 1.2rem;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:2px;background:var(--surface)}
+  .risk .tag{font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);grid-row:span 2;align-self:start;padding-top:.15rem}
+  .risk .h{font-weight:600;color:var(--ink)}
+  .risk .m{font-size:.92rem;color:var(--ink-soft)}
+  .risk .m b{color:var(--accent-ink);font-weight:600}
+
+  .team{display:flex;flex-direction:column;gap:1.1rem;max-width:70ch}
+  .team .member{display:flex;flex-direction:column;gap:.15rem}
+  .team .member .role{font-size:.76rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink);font-weight:600}
+  .team .member .nm{font-family:var(--font-display);font-size:1.15rem;color:var(--ink)}
+  .team .member .bio{font-size:.92rem;color:var(--ink-soft)}
+
+  .ask-hero{display:flex;flex-wrap:wrap;gap:clamp(1rem,4vw,3.5rem);align-items:flex-end}
+  .ask-hero .big{font-family:var(--font-display);font-size:clamp(2.6rem,6vw,4.4rem);font-weight:300;color:var(--ink);line-height:1}
+  .ask-hero .sub{font-family:var(--font-display);font-size:clamp(1.2rem,2.4vw,1.7rem);color:var(--accent-ink)}
+  .contact{font-size:.92rem;color:var(--ink-soft);display:flex;flex-wrap:wrap;gap:1.2rem}
+  .contact span b{color:var(--ink);font-weight:600}
+
+  /* cover */
+  .cover{justify-content:center}
+  .wordmark{
+    font-family:var(--font-display);font-weight:300;
+    font-size:clamp(1rem,1.5vw,1.15rem);letter-spacing:.34em;text-transform:uppercase;color:var(--accent-ink)
+  }
+  .cover h1{max-width:16ch}
+  .cover .kicker{font-size:.74rem;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+  .hint{font-size:.76rem;color:var(--muted);letter-spacing:.04em;display:flex;align-items:center;gap:.5rem}
+  .hint kbd{
+    font-family:var(--font-sans);font-size:.72rem;border:1px solid var(--line);border-bottom-width:2px;
+    border-radius:3px;padding:.05rem .4rem;background:var(--surface);color:var(--ink-soft)
+  }
+
+  /* chrome */
+  .rail{
+    position:fixed;left:clamp(.6rem,1.6vw,1.4rem);top:50%;transform:translateY(-50%);
+    display:flex;flex-direction:column;gap:.28rem;z-index:40
+  }
+  .rail button{
+    appearance:none;border:none;background:none;cursor:pointer;
+    display:flex;align-items:center;gap:.55rem;padding:.18rem .3rem;border-radius:3px;
+    color:var(--muted);font-family:var(--font-sans);font-size:.68rem;font-weight:600;letter-spacing:.06em;
+    font-variant-numeric:tabular-nums;
+  }
+  .rail button .dot{width:16px;height:2px;border-radius:2px;background:var(--line);transition:background .2s,width .2s}
+  .rail button .nm{opacity:0;transform:translateX(-4px);transition:opacity .18s,transform .18s;white-space:nowrap;text-transform:uppercase}
+  .rail button:hover .nm,.rail button:focus-visible .nm{opacity:1;transform:none}
+  .rail button:hover .dot{background:var(--muted)}
+  .rail button[aria-current="true"]{color:var(--accent-ink)}
+  .rail button[aria-current="true"] .dot{background:var(--accent);width:26px}
+  @media (max-width:900px){ .rail{display:none} }
+
+  .counter{
+    position:fixed;right:clamp(.9rem,2.4vw,2rem);bottom:clamp(.9rem,2.4vh,1.6rem);z-index:40;
+    font-size:.78rem;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:.14em;color:var(--muted)
+  }
+  .counter b{color:var(--ink)}
+
+  .flow{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:clamp(.9rem,2.4vh,1.6rem);z-index:40;
+    width:min(38vw,320px);height:14px;display:flex;align-items:center
+  }
+  .flow .ln{width:100%;height:1px;background:var(--line);position:relative}
+  .flow .ln::after{
+    content:"";position:absolute;top:50%;left:var(--p,0%);width:6px;height:6px;border-radius:50%;
+    background:var(--accent);transform:translate(-50%,-50%);transition:left .3s ease
+  }
+  @media (max-width:900px){ .flow{display:none} }
+  @media (prefers-reduced-motion:reduce){ .flow .ln::after{transition:none} .rail button .dot{transition:none} }
+
+  .chart-tip{
+    position:fixed;z-index:60;pointer-events:none;opacity:0;transition:opacity .12s;
+    background:var(--ink);color:var(--paper);font-size:.76rem;line-height:1.45;
+    padding:.5rem .65rem;border-radius:4px;box-shadow:var(--shadow);font-variant-numeric:tabular-nums;
+    max-width:220px
+  }
+  .chart-tip b{color:var(--paper)}
+  .chart-tip .r1{color:var(--series-1);font-weight:600}
+  .chart-tip .r2{color:var(--series-2);font-weight:600}
+
+  :focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:2px}
+
+  .legend{display:flex;gap:1.3rem;font-size:.8rem;color:var(--ink-soft);flex-wrap:wrap}
+  .legend .it{display:flex;align-items:center;gap:.45rem}
+  .legend .sw{width:14px;height:14px;border-radius:3px}
+  .legend .sw.line{height:3px;border-radius:2px}
+
+  svg text{font-family:var(--font-sans)}
+
+  @media print{
+    .rail,.counter,.flow,.hint{display:none}
+    .deck{position:static;overflow:visible}
+    .slide{min-height:auto;page-break-after:always;border-bottom:none;padding:2.4rem}
+  }
+</style>
+
+<div class="deck" id="deck">
+
+  <!-- 1 -->
+  <section class="slide cover" aria-label="Copertina">
+    <div class="slide__inner">
+      <div class="wordmark">Zen&#8209;Air</div>
+      <h1>Il gesto della sigaretta, senza niente da bruciare.</h1>
+      <p class="lead">Zen&#8209;Air &egrave; uno <strong>stick</strong> che si respira solo con l'aria: niente nicotina, niente fumo, niente vapore. Dentro c'&egrave; solo un aroma, e l'aria che ci passa attraverso.</p>
+      <p class="kicker">Presentazione del progetto &nbsp;&middot;&nbsp; Settembre 2026</p>
+      <p class="hint"><kbd>&larr;</kbd><kbd>&rarr;</kbd> per cambiare pagina</p>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="slide" aria-label="Problema">
+    <div class="slide__inner">
+      <div class="eyebrow">Il problema</div>
+      <h2>Chi smette perde il gesto, non solo la sigaretta.</h2>
+      <ul class="points">
+        <li>In Europa ci sono circa <strong>73 milioni di fumatori</strong>, e ogni anno tantissimi provano a smettere. Spesso ricominciano non per la nicotina, ma perch&eacute; gli manca il gesto: la mano che va alla bocca, la pausa, il momento tutto per s&eacute;.</li>
+        <li><strong>Cerotti e gomme</strong> tolgono la nicotina, ma non mettono niente al posto del gesto.</li>
+        <li>Le <strong>sigarette elettroniche</strong> tengono il gesto ma rimettono dentro nicotina e vapore &mdash; e ogni anno ci sono pi&ugrave; divieti.</li>
+        <li>Gli <strong>inalatori senza nicotina</strong> che gi&agrave; esistono sembrano oggetti da farmacia e non danno nessuna soddisfazione.</li>
+      </ul>
+      <div class="statband">
+        <div class="stat"><div class="v">Il gesto</div><div class="k">&egrave; una delle ragioni principali per cui si ricomincia nei primi mesi</div></div>
+        <div class="stat"><div class="v">3&times;</div><div class="k">pi&ugrave; facile riuscirci quando si affronta anche l'abitudine, non solo la nicotina</div></div>
+      </div>
+      <p class="fine">Numeri indicativi, presi da studi pubblici su come si smette di fumare.</p>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="slide" aria-label="Soluzione">
+    <div class="slide__inner">
+      <div class="eyebrow">L'idea</div>
+      <h2>Rifare il gesto, e trasformarlo in un momento di calma.</h2>
+      <div class="zeros">
+        <span><b>Zero</b> nicotina</span>
+        <span><b>Zero</b> fumo</span>
+        <span><b>Zero</b> vapore</span>
+      </div>
+      <p class="lead">Porti lo stick alla bocca e respiri, come faresti con una sigaretta. L'aria entra da un'estremit&agrave;, passa dentro un aroma naturale e arriva in bocca. Non c'&egrave; nessuna sostanza: quello che senti &egrave; il respiro lungo e il profumo.</p>
+      <p class="body">Lo chiamiamo <strong>&laquo;stick&raquo;</strong>, non &laquo;sigaretta&raquo;: non si fuma, e vogliamo che si capisca subito.</p>
+      <p class="body"><em class="q">Zen&#8209;Air non prova a sostituire la nicotina. Sostituisce l'accendino.</em></p>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="slide" aria-label="Prodotto">
+    <div class="slide__inner">
+      <div class="eyebrow">Com'&egrave; fatto</div>
+      <h2>L'aria &egrave; obbligata a passare nell'aroma.</h2>
+      <div class="split">
+        <figure class="figure">
+          <svg viewBox="0 0 720 300" role="img" aria-label="Sezione dello stick Zen-Air: tappo d'ingresso forato, camera aromatica sigillata, divisore poroso, filtro in cotone, boccaglio, con il flusso d'aria che attraversa tutte le camere.">
+            <defs>
+              <pattern id="fiber" width="16" height="16" patternUnits="userSpaceOnUse">
+                <circle cx="4" cy="4" r="1.6" fill="var(--series-1)" opacity="0.55"/>
+                <circle cx="12" cy="11" r="1.6" fill="var(--series-1)" opacity="0.55"/>
+              </pattern>
+              <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/>
+              </marker>
+            </defs>
+            <!-- body -->
+            <rect x="44" y="86" width="612" height="96" rx="48" fill="var(--surface-2)" stroke="var(--ink-soft)" stroke-width="2"/>
+            <!-- aroma chamber -->
+            <path d="M150 88 H360 V180 H150 Z" fill="var(--accent-soft)"/>
+            <path d="M150 88 H360 V180 H150 Z" fill="url(#fiber)"/>
+            <!-- filter -->
+            <path d="M372 88 H470 V180 H372 Z" fill="var(--amber-soft)"/>
+            <path d="M380 96 q10 8 20 0 t20 0 t20 0 M380 118 q10 8 20 0 t20 0 t20 0 M380 140 q10 8 20 0 t20 0 t20 0 M380 162 q10 8 20 0 t20 0 t20 0" fill="none" stroke="var(--amber)" stroke-width="1.4" opacity="0.7"/>
+            <!-- divider -->
+            <line x1="366" y1="86" x2="366" y2="182" stroke="var(--ink-soft)" stroke-width="2" stroke-dasharray="3 3"/>
+            <!-- inlet holes -->
+            <g stroke="var(--ink-soft)" stroke-width="3" stroke-linecap="round">
+              <line x1="60" y1="112" x2="60" y2="156"/>
+              <line x1="72" y1="104" x2="72" y2="164"/>
+              <line x1="84" y1="112" x2="84" y2="156"/>
+            </g>
+            <!-- mouthpiece -->
+            <path d="M612 104 q34 4 34 30 q0 26 -34 30 Z" fill="var(--ink-soft)"/>
+            <!-- airflow -->
+            <line x1="96" y1="134" x2="628" y2="134" stroke="var(--accent)" stroke-width="2" stroke-dasharray="2 7" stroke-linecap="round" marker-end="url(#ah)"/>
+            <text x="150" y="70" font-size="12" fill="var(--muted)" letter-spacing="0.12em">L'ARIA ENTRA DA QUI E ATTRAVERSA TUTTO</text>
+            <!-- callouts -->
+            <g font-size="12.5" fill="var(--ink-soft)">
+              <line x1="72" y1="182" x2="72" y2="212" stroke="var(--line)" stroke-width="1"/>
+              <text x="60" y="228"><tspan fill="var(--accent-ink)" font-weight="700">1</tspan> Tappo d'ingresso forato</text>
+              <line x1="255" y1="180" x2="255" y2="240" stroke="var(--line)" stroke-width="1"/>
+              <text x="243" y="256"><tspan fill="var(--accent-ink)" font-weight="700">2</tspan> Camera aromatica sigillata</text>
+              <line x1="366" y1="182" x2="366" y2="266" stroke="var(--line)" stroke-width="1"/>
+              <text x="354" y="282"><tspan fill="var(--accent-ink)" font-weight="700">3</tspan> Divisore poroso</text>
+              <line x1="421" y1="180" x2="500" y2="212" stroke="var(--line)" stroke-width="1"/>
+              <text x="508" y="216"><tspan fill="var(--accent-ink)" font-weight="700">4</tspan> Filtro in cotone</text>
+              <line x1="640" y1="150" x2="640" y2="230" stroke="var(--line)" stroke-width="1"/>
+              <text x="628" y="246" text-anchor="end"><tspan fill="var(--accent-ink)" font-weight="700">5</tspan> Boccaglio</text>
+            </g>
+          </svg>
+          <figcaption>Pareti chiuse dentro, buchi solo sul tappo.</figcaption>
+        </figure>
+        <div style="display:flex;flex-direction:column;gap:1rem">
+          <p class="body">La cosa importante: <strong>l'aria non pu&ograve; prendere scorciatoie</strong>. Le pareti interne sono chiuse e i buchi sono solo sul tappo, quindi tutta l'aria attraversa davvero l'aroma. Il profumo resta uguale dall'inizio alla fine della capsula.</p>
+          <p class="body">Vicino alla bocca c'&egrave; un filtro di cotone, che ferma eventuali pezzetti prima che arrivino sulle labbra.</p>
+          <p class="fine">Stiamo preparando il deposito del brevetto sul meccanismo.</p>
+        </div>
+      </div>
+      <div class="refill">
+        <p class="refill__lead"><strong>Come funziona la ricarica</strong> &mdash; lo stick lo tieni sempre, si cambia solo la capsula. Ogni capsula &egrave; gi&agrave; aromatizzata: un gusto per capsula.</p>
+        <ol class="steps">
+          <li><span class="s">1</span> Apri il corpo e togli la capsula esaurita.</li>
+          <li><span class="s">2</span> Inserisci la capsula nuova, tra il tappo e il filtro.</li>
+          <li><span class="s">3</span> Richiudi e respira.</li>
+        </ol>
+        <p class="fine">Confezioni da 3 capsule dello stesso gusto (per esempio 3 all'anguria), ~&euro;10, in media una al mese. Dentro c'&egrave; una fibra imbevuta di aroma alimentare, sigillata fino al primo uso.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="slide" aria-label="Perch&eacute; ora">
+    <div class="slide__inner">
+      <div class="eyebrow">Perch&eacute; adesso</div>
+      <h2>Perch&eacute; &egrave; il momento giusto.</h2>
+      <div class="cols">
+        <div class="col">
+          <h3>Lo svapo &egrave; sotto pressione</h3>
+          <p>Sempre pi&ugrave; divieti e tasse in Europa, e le sigarette elettroniche usa&#8209;e&#8209;getta vietate nel Regno Unito. Chi cerca un'alternativa alla sigaretta &egrave; pi&ugrave; disposto a provare qualcosa di diverso.</p>
+        </div>
+        <div class="col">
+          <h3>La calma &egrave; diventata popolare</h3>
+          <p>Meditazione, esercizi di respirazione, prodotti per rilassarsi. Fermarsi un momento a respirare &egrave; qualcosa che le persone gi&agrave; cercano.</p>
+        </div>
+        <div class="col">
+          <h3>Non lo fa nessuno</h3>
+          <p>Le uniche cose simili sono sigarette di erbe, che per&ograve; bruciano ancora. Un prodotto che d&agrave; il gesto e il profumo senza bruciare niente non esiste. Lo spazio &egrave; libero.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="slide" aria-label="Mercato">
+    <div class="slide__inner">
+      <div class="eyebrow">Quante persone</div>
+      <h2>Non serve convincere tutti.</h2>
+      <div class="tiers">
+        <div class="tier">
+          <span class="amt">~73 milioni</span>
+          <span class="lab">Fumatori in Europa</span>
+          <span class="desc">Il punto di partenza.</span>
+        </div>
+        <div class="tier">
+          <span class="amt">~1 su 4</span>
+          <span class="lab">Prova a smettere ogni anno</span>
+          <span class="desc">Sono milioni di persone che cercano un aiuto &mdash; e quasi nessuno di questi aiuti si occupa del gesto.</span>
+        </div>
+        <div class="tier">
+          <span class="amt">Poche migliaia</span>
+          <span class="lab">Ci bastano per partire</span>
+          <span class="desc">Anche una piccolissima parte di quelle persone rende il progetto sostenibile.</span>
+        </div>
+      </div>
+      <p class="body">Un mercato per le &laquo;sigarette senza tabacco&raquo; esiste gi&agrave;: circa <strong>un miliardo di dollari</strong> nel mondo, in crescita a doppia cifra negli Stati Uniti. Oggi &egrave; fatto quasi solo di sigarette che bruciano erbe &mdash; noi partiamo da l&igrave;, ma senza combustione.</p>
+      <p class="fine">Numeri di contesto, presi da fonti pubbliche. Servono solo a dare un'idea delle proporzioni.</p>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="slide" aria-label="Modello di business">
+    <div class="slide__inner">
+      <div class="eyebrow">Come guadagniamo</div>
+      <h2>Si compra una volta, le capsule ogni mese.</h2>
+      <p class="lead">Lo stick si compra una sola volta. Poi servono le capsule aromatizzate &mdash; ed &egrave; l&igrave; che nasce un piccolo guadagno che si ripete nel tempo, come per il caff&egrave; in capsule o le lamette da barba.</p>
+      <div class="statband">
+        <div class="stat"><div class="v">~&euro;19</div><div class="k">prezzo dello stick</div></div>
+        <div class="stat"><div class="v">~&euro;10</div><div class="k">confezione da 3 capsule dello stesso gusto</div></div>
+        <div class="stat"><div class="v">~1 al mese</div><div class="k">quante capsule usa in media una persona</div></div>
+      </div>
+      <p class="body">Ogni capsula ha un solo aroma. Le confezioni sono da 3 capsule dello stesso gusto &mdash; per esempio 3 all'anguria &mdash; cos&igrave; chi trova il gusto che gli piace ne compra una scorta.</p>
+      <p class="body">All'inizio vendiamo solo dal nostro sito: cos&igrave; parliamo direttamente con chi compra, capiamo quali aromi piacciono e non diamo un pezzo di guadagno ai negozi.</p>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="slide" aria-label="Come lo vendiamo">
+    <div class="slide__inner">
+      <div class="eyebrow">Come lo vendiamo</div>
+      <h2>Prima da soli, online. Poi in negozio.</h2>
+      <div class="cols">
+        <div class="col">
+          <span class="n">All'inizio</span>
+          <h3>Il nostro sito</h3>
+          <p>Vendiamo direttamente noi, con il passaparola e i social. Cos&igrave; conosciamo chi compra e possiamo cambiare in fretta gli aromi che non funzionano.</p>
+        </div>
+        <div class="col">
+          <span class="n">Dopo il primo anno</span>
+          <h3>Le farmacie</h3>
+          <p>Sono il posto dove va chi vuole smettere di fumare. Partiamo con qualche farmacia in Italia.</p>
+        </div>
+        <div class="col">
+          <span class="n">Pi&ugrave; avanti</span>
+          <h3>Negozi e aeroporti</h3>
+          <p>Erboristerie, negozi di benessere, aeroporti. Quando il prodotto &egrave; rodato e il nome inizia a essere conosciuto.</p>
+        </div>
+      </div>
+      <p class="body">Le capsule restano sempre in vendita sul nostro sito: &egrave; il legame diretto con chi usa Zen&#8209;Air.</p>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section class="slide" aria-label="Competizione">
+    <div class="slide__inner">
+      <div class="eyebrow">Cosa c'&egrave; gi&agrave;</div>
+      <h2>Nessuno fa esattamente questo.</h2>
+      <div class="split">
+        <figure class="figure">
+          <svg viewBox="0 0 470 350" role="img" aria-label="Mappa di confronto. Orizzontale: quanto mantiene il gesto. Verticale: quanto è privo di rischio. In alto a destra, da solo, c'è Zen-Air. Le sigarette normali, le sigarette erboristiche e le elettroniche stanno a destra ma in basso, perché bruciano o contengono nicotina. Cerotti, gomme e diffusori aromatici stanno più a sinistra.">
+            <line x1="60" y1="300" x2="444" y2="300" stroke="var(--ink-soft)" stroke-width="1.5" marker-end="url(#ah2)"/>
+            <line x1="60" y1="300" x2="60" y2="24" stroke="var(--ink-soft)" stroke-width="1.5" marker-end="url(#ah2)"/>
+            <defs>
+              <marker id="ah2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0 0 L10 5 L0 10 z" fill="var(--ink-soft)"/>
+              </marker>
+            </defs>
+            <line x1="252" y1="40" x2="252" y2="300" stroke="var(--line)" stroke-width="1" stroke-dasharray="3 4"/>
+            <line x1="60" y1="170" x2="444" y2="170" stroke="var(--line)" stroke-width="1" stroke-dasharray="3 4"/>
+            <text x="252" y="322" text-anchor="middle" font-size="11.5" fill="var(--muted)" letter-spacing="0.06em">Mantiene il gesto &rarr;</text>
+            <text x="46" y="170" text-anchor="middle" font-size="11.5" fill="var(--muted)" letter-spacing="0.06em" transform="rotate(-90 46 170)">Poco o nessun rischio &rarr;</text>
+
+            <g font-size="11" fill="var(--ink-soft)">
+              <circle cx="410" cy="278" r="5" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5"/>
+              <text x="399" y="282" text-anchor="end">Sigaretta</text>
+
+              <circle cx="388" cy="212" r="5" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5"/>
+              <text x="377" y="204" text-anchor="end">Sigarette erboristiche</text>
+
+              <circle cx="322" cy="176" r="5" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5"/>
+              <text x="311" y="168" text-anchor="end">Sig. elettronica</text>
+
+              <circle cx="150" cy="132" r="5" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5"/>
+              <text x="161" y="128" text-anchor="start">Cerotti, gomme, inalatori</text>
+
+              <circle cx="208" cy="86" r="5" fill="var(--surface)" stroke="var(--muted)" stroke-width="1.5"/>
+              <text x="208" y="74" text-anchor="middle">Diffusori aromatici</text>
+
+              <circle cx="374" cy="56" r="15" fill="var(--accent)" opacity="0.16"/>
+              <circle cx="374" cy="56" r="7" fill="var(--accent)"/>
+              <text x="361" y="50" text-anchor="end" font-weight="700" fill="var(--accent-ink)" font-size="12.5">Zen&#8209;Air</text>
+            </g>
+          </svg>
+          <figcaption>Confronto qualitativo, fatto da noi.</figcaption>
+        </figure>
+        <div style="display:flex;flex-direction:column;gap:.9rem">
+          <p class="body">Le cose pi&ugrave; simili sono le <strong>sigarette senza tabacco</strong>, fatte di erbe:</p>
+          <ul class="points" style="gap:.5rem">
+            <li><strong>Honeyrose</strong> (Regno Unito, dal 1901) &mdash; la pi&ugrave; conosciuta, usata anche nei film.</li>
+            <li><strong>Ecstacy</strong> (Stati Uniti) &mdash; miscela di erbe, in crescita tra gli ex fumatori.</li>
+            <li><strong>Nirdosh</strong> (India) &mdash; erbe con fama &laquo;curativa&raquo;, mercato asiatico.</li>
+          </ul>
+          <p class="body">&Egrave; un mercato reale, circa <strong>un miliardo di dollari</strong> nel mondo e in crescita. Ma <strong>bruciano tutte</strong>: fumo, catrame, monossido di carbonio. Zen&#8209;Air non brucia niente, e resta l'unico in alto a destra.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 -->
+  <section class="slide" aria-label="Il piano">
+    <div class="slide__inner">
+      <div class="eyebrow">Il piano</div>
+      <h2>Cosa facciamo, in ordine.</h2>
+      <p class="lead">La regola: non spendiamo in sito e marketing finch&eacute; il prodotto non convince chi lo prova. Prima le cose che possono far fallire l'idea.</p>
+      <div class="timeline">
+        <div class="ev"><div class="when">1 &middot; Mesi 1&ndash;4</div><div class="what"><strong>Il prodotto funziona.</strong> Prototipo stampato in 3D, scelta dei 3 aromi, prova con 10&ndash;15 ex fumatori. Se non funziona o non piace, ci fermiamo qui.</div></div>
+        <div class="ev"><div class="when">2 &middot; Mesi 3&ndash;7</div><div class="what"><strong>Sicurezza e regole.</strong> Mezza giornata con un tecnico degli aromi, verifica che i 3 aromi si respirino bene, parere di un legale sul fatto che non &egrave; un prodotto del tabacco.</div></div>
+        <div class="ev"><div class="when">3 &middot; Mesi 5&ndash;8</div><div class="what"><strong>Quanto costa davvero.</strong> Preventivi veri per lo stampo e una piccola produzione, scelta del materiale della capsula, prezzo di vendita definitivo.</div></div>
+        <div class="ev"><div class="when">4 &middot; Mesi 7&ndash;10</div><div class="what"><strong>Marchio e sito.</strong> Nome e logo definitivi, sito di vendita semplice, foto del prodotto, pagina &laquo;come funziona&raquo;.</div></div>
+        <div class="ev"><div class="when">5 &middot; Mesi 9&ndash;12</div><div class="what"><strong>Marketing leggero.</strong> Passaparola, un profilo Instagram e TikTok sul &laquo;gesto&raquo;, due o tre creator, lista d'attesa via email.</div></div>
+        <div class="ev"><div class="when">6 &middot; Dal mese 12</div><div class="what"><strong>Lancio in Italia.</strong> Prima piccola produzione, vendita dal sito, raccolta di recensioni e primi riordini.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- costi prototipi -->
+  <section class="slide" aria-label="Quanto costa fare i prototipi">
+    <div class="slide__inner">
+      <div class="eyebrow">Quanto costa</div>
+      <h2>Fare i primi prototipi con poco.</h2>
+      <p class="lead">Per ora niente stampi e niente laboratorio esterno: prototipi stampati in 3D e montati a mano, con aromi gi&agrave; conosciuti come sicuri da respirare. Lo stampo e i test veri arrivano dopo, quando l'idea &egrave; confermata.</p>
+      <table class="model" style="max-width:600px">
+        <caption>Budget massimo: &euro;5.000</caption>
+        <tbody>
+          <tr><td>Stampante 3D e consumabili</td><td>&euro;500</td></tr>
+          <tr><td>Materiali (fibre, filtri, guarnizioni, colle)</td><td>&euro;400</td></tr>
+          <tr><td>Aromi campione (3 tipi adatti all'inalazione)</td><td>&euro;450</td></tr>
+          <tr><td>Utensili e assemblaggio a mano</td><td>&euro;300</td></tr>
+          <tr><td>Mezza giornata con un tecnico degli aromi</td><td>&euro;1.500</td></tr>
+          <tr><td>Mock&#8209;up della confezione, fatti a mano</td><td>&euro;200</td></tr>
+          <tr><td>Spedizioni e imprevisti</td><td>&euro;600</td></tr>
+          <tr><td><strong>Totale</strong></td><td><strong>~&euro;4.000</strong></td></tr>
+        </tbody>
+      </table>
+      <p class="fine">Stime indicative. Il test di sicurezza completo, che serve prima di vendere, &egrave; una spesa a parte e pi&ugrave; avanti.</p>
+    </div>
+  </section>
+
+  <!-- 12 -->
+  <section class="slide" aria-label="Rischi e mitigazione">
+    <div class="slide__inner">
+      <div class="eyebrow">I rischi</div>
+      <h2>Le cose difficili, e come le affrontiamo.</h2>
+      <div class="risks">
+        <div class="risk">
+          <span class="tag">Il pi&ugrave; importante</span>
+          <span class="h">Far respirare l'aroma in sicurezza</span>
+          <span class="m">Non tutti gli aromi buoni da mangiare sono sicuri da respirare spesso. <b>Cosa facciamo:</b> scegliamo aromi gi&agrave; usati per l'inalazione, mettiamo una fibra imbevuta invece di pezzetti solidi, e facciamo test di laboratorio prima di vendere qualsiasi cosa.</span>
+        </div>
+        <div class="risk">
+          <span class="tag">Da chiarire</span>
+          <span class="h">Le regole</span>
+          <span class="m">Il rischio &egrave; che ci trattino come un prodotto del tabacco solo per la forma. <b>Cosa facciamo:</b> niente tabacco e niente nicotina, quindi fuori dalle regole europee sul tabacco; forma volutamente diversa da una sigaretta, e lo chiamiamo &laquo;stick&raquo;, non &laquo;sigaretta&raquo;; parere di un legale prima di partire.</span>
+        </div>
+        <div class="risk">
+          <span class="tag">Da verificare</span>
+          <span class="h">La gente lo trover&agrave; utile?</span>
+          <span class="m">Senza nicotina, qualcuno potrebbe non sentirne il bisogno. <b>Cosa facciamo:</b> lo raccontiamo come respiro, profumo e gesto, non come &laquo;sostituto&raquo;; lo facciamo provare a ex fumatori prima di spingerci oltre.</span>
+        </div>
+        <div class="risk">
+          <span class="tag">Da verificare</span>
+          <span class="h">Qualcuno pi&ugrave; grande ci copia</span>
+          <span class="m">Un'azienda gi&agrave; nel settore potrebbe rifare la stessa cosa. <b>Cosa facciamo:</b> arrivare prima, costruire il nome, e depositare il brevetto sul meccanismo.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 -->
+  <section class="slide" aria-label="Team">
+    <div class="slide__inner">
+      <div class="eyebrow">Chi siamo</div>
+      <h2>Siamo in tre.</h2>
+      <div class="team">
+        <div class="member">
+          <span class="role">CEO</span>
+          <span class="nm">Spano Diego</span>
+        </div>
+        <div class="member">
+          <span class="role">CEO</span>
+          <span class="nm">Mancini Mattia</span>
+        </div>
+        <div class="member">
+          <span class="role">CEO</span>
+          <span class="nm">PierFrancesco Pirro</span>
+        </div>
+        <div class="member">
+          <span class="role">Ci servir&agrave;</span>
+          <span class="nm">Un esperto di sicurezza degli aromi</span>
+        </div>
+        <div class="member">
+          <span class="role">Ci piacerebbe avere</span>
+          <span class="nm">Un medico e qualcuno che conosce le farmacie</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 -->
+  <section class="slide" aria-label="Prossimi passi">
+    <div class="slide__inner">
+      <div class="eyebrow">Prossimi passi</div>
+      <h2>Le prime cose, nelle prossime settimane.</h2>
+      <ul class="points">
+        <li>Finire il disegno 3D e stampare i primi prototipi</li>
+        <li>Scegliere i 3 aromi da provare, tra quelli gi&agrave; noti come sicuri da respirare</li>
+        <li>Farlo provare a 10&ndash;15 ex fumatori e raccogliere i primi giudizi</li>
+        <li>Chiedere un primo parere a un tecnico degli aromi</li>
+      </ul>
+      <div class="contact">
+        <span><b>Spano Diego</b> &middot; <b>Mancini Mattia</b> &middot; <b>PierFrancesco Pirro</b></span>
+        <span>mancordeveloping@gmail.com</span>
+        <span>[telefono]</span>
+      </div>
+      <p class="fine">I numeri citati sono stime nostre, non promesse.</p>
+    </div>
+  </section>
+
+</div>
+
+<nav class="rail" id="rail" aria-label="Navigazione slide"></nav>
+<div class="counter" id="counter"><b>01</b> / 14</div>
+<div class="flow" aria-hidden="true"><div class="ln" id="flowln"></div></div>
+
+<script>
+(function(){
+  var deck = document.getElementById('deck');
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var rail = document.getElementById('rail');
+  var counter = document.getElementById('counter');
+  var flowln = document.getElementById('flowln');
+  var motionOK = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var labels = ['Copertina','Il problema','L’idea','Com’è fatto','Perché adesso','Quante persone','Come guadagniamo','Come lo vendiamo','Cosa c’è già','Il piano','Quanto costa','I rischi','Chi siamo','Prossimi passi'];
+  var current = 0;
+
+  labels.forEach(function(lb, i){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-label', (i+1) + '. ' + lb);
+    b.innerHTML = '<span class="dot"></span><span class="nm">' + lb + '</span>';
+    b.addEventListener('click', function(){ goTo(i); });
+    rail.appendChild(b);
+  });
+  var railBtns = Array.prototype.slice.call(rail.children);
+
+  function goTo(i){
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    slides[i].scrollIntoView({ behavior: motionOK ? 'smooth' : 'auto', block: 'start' });
+  }
+
+  function pad(n){ return n < 10 ? '0' + n : '' + n; }
+
+  function setCurrent(i){
+    if (i === current) return;
+    current = i;
+    counter.innerHTML = '<b>' + pad(i+1) + '</b> / ' + pad(slides.length);
+    railBtns.forEach(function(b, j){ b.setAttribute('aria-current', j === i ? 'true' : 'false'); });
+    flowln.style.setProperty('--p', (slides.length > 1 ? (i / (slides.length - 1)) * 100 : 0) + '%');
+  }
+  setCurrent(0);
+
+  var ticking = false;
+  deck.addEventListener('scroll', function(){
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function(){
+      var mid = deck.scrollTop + deck.clientHeight / 2;
+      var idx = 0, acc = 0;
+      for (var k = 0; k < slides.length; k++){
+        var h = slides[k].offsetHeight;
+        if (mid >= acc && mid < acc + h){ idx = k; break; }
+        acc += h;
+        idx = k;
+      }
+      setCurrent(idx);
+      ticking = false;
+    });
+  }, { passive: true });
+
+  window.addEventListener('keydown', function(e){
+    var tag = (e.target && e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ' || e.key === 'Spacebar'){
+      e.preventDefault(); goTo(current + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp'){
+      e.preventDefault(); goTo(current - 1);
+    } else if (e.key === 'Home'){ e.preventDefault(); goTo(0); }
+    else if (e.key === 'End'){ e.preventDefault(); goTo(slides.length - 1); }
+  });
+
+})();
+</script>
+
+</body>
+</html>
