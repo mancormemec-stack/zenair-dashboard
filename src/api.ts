@@ -165,7 +165,7 @@ export async function evaluateMessage(questId: string, messageId: string): Promi
   ]);
   if (!quest || !msg) throw new Error("Dati non trovati.");
 
-  const { data, error } = await supabase.functions.invoke("evaluate", {
+  const { data, error } = await supabase.functions.invoke("hyper-processor", {
     body: {
       questTitle: quest.title,
       questBrief: quest.brief,
