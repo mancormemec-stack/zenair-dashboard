@@ -11,7 +11,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { configOk, supabase } from "./supabase";
 import * as api from "./api";
-import type { Member, Note, QuestMessage } from "./api";
+import type { Attachment, Member, Note, QuestMessage } from "./api";
 import { BrainGraph } from "./BrainGraph";
 
 /* ---------------- toast ---------------- */
@@ -259,19 +259,20 @@ function LoginCard() {
 }
 
 /* ---------------- dashboard ---------------- */
-type Tab = "quest" | "brain" | "memoria";
+type Tab = "bacheca" | "quest" | "brain" | "memoria";
 
 function Dashboard({ user }: { user: Member }) {
   const qc = useQueryClient();
   const toast = useToast();
-  const [tab, setTab] = useState<Tab>("quest");
+  const [tab, setTab] = useState<Tab>("bacheca");
   const [pwOpen, setPwOpen] = useState(false);
   const [openNote, setOpenNote] = useState<string | null>(null);
+  const [openQuestId, setOpenQuestId] = useState<string | null>(null);
 
   useEffect(() => {
     try {
       const t = localStorage.getItem("zenair.tab");
-      if (t === "quest" || t === "brain" || t === "memoria") setTab(t);
+      if (t === "bacheca" || t === "quest" || t === "brain" || t === "memoria") setTab(t);
     } catch {
       /* ignore */
     }
@@ -291,13 +292,16 @@ function Dashboard({ user }: { user: Member }) {
       .on("postgres_changes", { event: "*", schema: "public", table: "quests" }, () => {
         qc.invalidateQueries({ queryKey: ["quests"] });
         qc.invalidateQueries({ queryKey: ["quest"] });
+        qc.invalidateQueries({ queryKey: ["activity"] });
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "quest_messages" }, () => {
         qc.invalidateQueries({ queryKey: ["quest"] });
         qc.invalidateQueries({ queryKey: ["quests"] });
+        qc.invalidateQueries({ queryKey: ["activity"] });
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "notes" }, () => {
         qc.invalidateQueries({ queryKey: ["notes"] });
+        qc.invalidateQueries({ queryKey: ["activity"] });
       })
       .subscribe();
     return () => {
@@ -310,9 +314,13 @@ function Dashboard({ user }: { user: Member }) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["me"] }),
   });
 
-  const openNoteFromBrain = (title: string) => {
+  const goNote = (title: string) => {
     setOpenNote(title);
     changeTab("memoria");
+  };
+  const goQuest = (id: string) => {
+    setOpenQuestId(id);
+    changeTab("quest");
   };
 
   return (
@@ -322,6 +330,9 @@ function Dashboard({ user }: { user: Member }) {
           <b>Base Zen-Air</b>
         </div>
         <div className="tabs">
+          <button aria-current={tab === "bacheca"} onClick={() => changeTab("bacheca")}>
+            Bacheca
+          </button>
           <button aria-current={tab === "quest"} onClick={() => changeTab("quest")}>
             Quest
           </button>
@@ -349,10 +360,16 @@ function Dashboard({ user }: { user: Member }) {
         </button>
       </div>
 
-      {tab === "quest" ? (
-        <QuestTab user={user} />
+      {tab === "bacheca" ? (
+        <BachecaTab user={user} onOpenQuest={goQuest} onOpenNote={goNote} />
+      ) : tab === "quest" ? (
+        <QuestTab
+          user={user}
+          openId={openQuestId}
+          onConsumedOpen={() => setOpenQuestId(null)}
+        />
       ) : tab === "brain" ? (
-        <BrainTab onOpenNote={openNoteFromBrain} />
+        <BrainTab onOpenNote={goNote} />
       ) : (
         <NotesTab user={user} openTitle={openNote} onConsumedOpen={() => setOpenNote(null)} />
       )}
@@ -400,6 +417,166 @@ function ChangePassword({ onClose, onDone }: { onClose: () => void; onDone: () =
   );
 }
 
+/* ---------------- file helpers ---------------- */
+function FileChips({ files, onRemove }: { files: Attachment[]; onRemove?: (i: number) => void }) {
+  if (!files.length) return null;
+  return (
+    <div className="filechips">
+      {files.map((f, i) => (
+        <span key={i} className="filechip">
+          {onRemove ? (
+            <>
+              📎 {f.name}
+              <button type="button" onClick={() => onRemove(i)} aria-label="rimuovi">
+                ×
+              </button>
+            </>
+          ) : (
+            <a href={f.url} target="_blank" rel="noopener noreferrer">
+              📎 {f.name}
+            </a>
+          )}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function FilePicker({
+  folder,
+  id,
+  onAdded,
+}: {
+  folder: "quests" | "notes";
+  id: string;
+  onAdded: (a: Attachment) => void;
+}) {
+  const toast = useToast();
+  const [busy, setBusy] = useState(false);
+  return (
+    <label className={"btn btn-sm" + (busy ? " is-busy" : "")} style={{ cursor: "pointer" }}>
+      {busy ? "carico…" : "📎 Allega file"}
+      <input
+        type="file"
+        hidden
+        disabled={busy}
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (!file) return;
+          if (file.size > 10 * 1024 * 1024) {
+            toast("File troppo grande (max 10 MB).");
+            return;
+          }
+          setBusy(true);
+          try {
+            onAdded(await api.uploadFile(folder, id, file));
+          } catch (err) {
+            toast(errMsg(err));
+          } finally {
+            setBusy(false);
+          }
+        }}
+      />
+    </label>
+  );
+}
+
+/* ---------------- bacheca ---------------- */
+function BachecaTab({
+  user,
+  onOpenQuest,
+  onOpenNote,
+}: {
+  user: Member;
+  onOpenQuest: (id: string) => void;
+  onOpenNote: (title: string) => void;
+}) {
+  const quests = useQuery({
+    queryKey: ["quests"],
+    queryFn: () => api.listQuests(user),
+    refetchInterval: 20_000,
+  });
+  const activity = useQuery({
+    queryKey: ["activity"],
+    queryFn: api.recentActivity,
+    refetchInterval: 20_000,
+  });
+
+  const qs = quests.data ?? [];
+  const mine = user.is_owner
+    ? qs.filter((q) => q.status === "inviata")
+    : qs.filter((q) => q.status === "aperta" || q.status === "da-rifare");
+  const mineTitle = user.is_owner ? "Risultati da controllare" : "Le tue quest da fare";
+
+  return (
+    <div className="work single">
+      <div className="pane pane-main bacheca">
+        <h1 className="bacheca__hi">Ciao, {user.name}.</h1>
+
+        <section>
+          <h3 className="bacheca__h">
+            {mineTitle}
+            {mine.length ? <span className="tally">{mine.length}</span> : null}
+          </h3>
+          {!qs.length && quests.isLoading ? (
+            <div className="spin" />
+          ) : !mine.length ? (
+            <p className="hint" style={{ marginTop: 0 }}>
+              {user.is_owner ? "Niente in attesa. Tutto sotto controllo." : "Niente da fare adesso. 🎉"}
+            </p>
+          ) : (
+            <div className="bcards">
+              {mine.map((q) => {
+                const df = DIFF[q.difficulty] ?? DIFF.medio;
+                return (
+                  <button key={q.id} className="card card--todo" onClick={() => onOpenQuest(q.id)}>
+                    <span className="t">{q.title}</span>
+                    <span className="meta">
+                      <span className={"tag " + df.cls}>{df.label}</span>
+                      {q.status === "da-rifare" ? <span className="tag redo">da rifare</span> : null}
+                      {user.is_owner ? <span>{assigneeLabel(q.assignee)}</span> : null}
+                      <span>· {whenShort(q.updated_at)}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        <section>
+          <h3 className="bacheca__h">Novità recenti</h3>
+          {activity.isLoading ? (
+            <div className="spin" />
+          ) : !activity.data?.length ? (
+            <p className="hint" style={{ marginTop: 0 }}>
+              Ancora niente. Le attività del team compaiono qui.
+            </p>
+          ) : (
+            <ul className="feed">
+              {activity.data.map((a) => (
+                <li key={a.id}>
+                  <button
+                    className="linkish"
+                    onClick={() =>
+                      a.kind === "quest" ? onOpenQuest(a.targetId) : onOpenNote(a.targetTitle)
+                    }
+                  >
+                    <b>{nameOf(a.who)}</b> {a.text}{" "}
+                    <span className="feed__target">«{a.targetTitle}»</span>
+                  </button>
+                  <span className="feed__when">{whenShort(a.at)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}
+
 /* ---------------- brain ---------------- */
 function BrainTab({ onOpenNote }: { onOpenNote: (title: string) => void }) {
   const notes = useQuery({ queryKey: ["notes"], queryFn: api.listNotes, refetchInterval: 30_000 });
@@ -416,7 +593,15 @@ function BrainTab({ onOpenNote }: { onOpenNote: (title: string) => void }) {
 }
 
 /* ---------------- quests ---------------- */
-function QuestTab({ user }: { user: Member }) {
+function QuestTab({
+  user,
+  openId,
+  onConsumedOpen,
+}: {
+  user: Member;
+  openId: string | null;
+  onConsumedOpen: () => void;
+}) {
   const qc = useQueryClient();
   const toast = useToast();
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -424,6 +609,15 @@ function QuestTab({ user }: { user: Member }) {
   const [filter, setFilter] = useState<"tutte" | "da-fare" | "attesa" | "chiuse">(
     user.is_owner ? "tutte" : "da-fare",
   );
+
+  useEffect(() => {
+    if (openId) {
+      setActiveId(openId);
+      setCreating(false);
+      setFilter("tutte");
+      onConsumedOpen();
+    }
+  }, [openId, onConsumedOpen]);
 
   const quests = useQuery({
     queryKey: ["quests"],
@@ -677,13 +871,21 @@ function QuestDetail({
   });
   const [text, setText] = useState("");
   const [link, setLink] = useState("");
+  const [files, setFiles] = useState<Attachment[]>([]);
 
   const post = useMutation({
     mutationFn: (kind: "comment" | "submission") =>
-      api.postMessage(user, { questId, kind, text, links: link.trim() ? [link.trim()] : [] }),
+      api.postMessage(user, {
+        questId,
+        kind,
+        text,
+        links: link.trim() ? [link.trim()] : [],
+        files,
+      }),
     onSuccess: () => {
       setText("");
       setLink("");
+      setFiles([]);
       detail.refetch();
       onChange();
     },
@@ -803,7 +1005,7 @@ function QuestDetail({
                     {m.kind === "submission" ? <span className="tag sent">risultato</span> : null}
                     <span>· {whenShort(m.created_at)}</span>
                   </div>
-                  <div className="body">{m.text}</div>
+                  {m.text ? <div className="body">{m.text}</div> : null}
                   {m.links.length ? (
                     <div className="links">
                       {m.links.map((l, i) => (
@@ -813,6 +1015,7 @@ function QuestDetail({
                       ))}
                     </div>
                   ) : null}
+                  <FileChips files={m.files} />
                 </div>
                 {m.kind === "submission" ? (
                   <>
@@ -844,10 +1047,12 @@ function QuestDetail({
           placeholder={isMember ? "Scrivi cosa hai trovato, o un aggiornamento…" : "Scrivi un commento o istruzioni…"}
         />
         <input className="lk" value={link} onChange={(e) => setLink(e.target.value)} placeholder="Link (facoltativo)" />
+        <FileChips files={files} onRemove={(i) => setFiles(files.filter((_, k) => k !== i))} />
         <div className="row">
+          <FilePicker folder="quests" id={questId} onAdded={(a) => setFiles((f) => [...f, a])} />
           <button
             className="btn btn-sm"
-            disabled={post.isPending || (!text.trim() && !link.trim())}
+            disabled={post.isPending || (!text.trim() && !link.trim() && !files.length)}
             onClick={() => post.mutate("comment")}
           >
             Commenta
@@ -855,7 +1060,7 @@ function QuestDetail({
           {isMember ? (
             <button
               className="btn btn-primary btn-sm"
-              disabled={post.isPending || !text.trim()}
+              disabled={post.isPending || (!text.trim() && !files.length)}
               onClick={() => post.mutate("submission")}
             >
               {post.isPending ? "invio + valutazione…" : "Invia come risultato"}
@@ -882,7 +1087,7 @@ function NotesTab({
   const notes = useQuery({ queryKey: ["notes"], queryFn: api.listNotes, refetchInterval: 25_000 });
   const [activeId, setActiveId] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState<{ id?: string; title: string; body: string }>({ title: "", body: "" });
+  const [draft, setDraft] = useState<NoteDraft>({ title: "", body: "", files: [] });
   const [search, setSearch] = useState("");
 
   const all = notes.data ?? [];
@@ -901,7 +1106,7 @@ function NotesTab({
         setActiveId(found.id);
         setEditing(false);
       } else {
-        setDraft({ title: title.trim(), body: "" });
+        setDraft({ title: title.trim(), body: "", files: [] });
         setActiveId(null);
         setEditing(true);
       }
@@ -917,7 +1122,7 @@ function NotesTab({
   }, [openTitle, all.length, openOrCreate, onConsumedOpen]);
 
   const save = useMutation({
-    mutationFn: (v: { id?: string; title: string; body: string }) => api.saveNote(user, v),
+    mutationFn: (v: NoteDraft) => api.saveNote(user, v),
     onSuccess: (id) => {
       setEditing(false);
       setActiveId(id);
@@ -947,7 +1152,7 @@ function NotesTab({
           <button
             className="btn btn-primary btn-sm"
             onClick={() => {
-              setDraft({ title: "", body: "" });
+              setDraft({ title: "", body: "", files: [] });
               setActiveId(null);
               setEditing(true);
             }}
@@ -1010,7 +1215,7 @@ function NotesTab({
             allNotes={all}
             titles={titles}
             onEdit={() => {
-              setDraft({ id: active.id, title: active.title, body: active.body });
+              setDraft({ id: active.id, title: active.title, body: active.body, files: active.files });
               setEditing(true);
             }}
             onOpenNote={openOrCreate}
@@ -1024,6 +1229,8 @@ function NotesTab({
   );
 }
 
+type NoteDraft = { id?: string; title: string; body: string; files: Attachment[] };
+
 function NoteEditor({
   draft,
   setDraft,
@@ -1032,8 +1239,8 @@ function NoteEditor({
   onCancel,
   onDelete,
 }: {
-  draft: { id?: string; title: string; body: string };
-  setDraft: (d: { id?: string; title: string; body: string }) => void;
+  draft: NoteDraft;
+  setDraft: (d: NoteDraft) => void;
   saving: boolean;
   onSave: () => void;
   onCancel: () => void;
@@ -1056,6 +1263,14 @@ function NoteEditor({
         onChange={(e) => setDraft({ ...draft, body: e.target.value })}
         placeholder="Scrivi qui. Markdown semplice. Collega altre note con [[Titolo]]."
       />
+      <div style={{ display: "flex", alignItems: "center", gap: ".5rem", margin: ".6rem 0 .2rem" }}>
+        <FilePicker
+          folder="notes"
+          id={draft.id ?? ""}
+          onAdded={(a) => setDraft({ ...draft, files: [...draft.files, a] })}
+        />
+        <FileChips files={draft.files} onRemove={(i) => setDraft({ ...draft, files: draft.files.filter((_, k) => k !== i) })} />
+      </div>
       <div className="detail-actions" style={{ marginTop: ".7rem" }}>
         <button className="btn btn-primary" disabled={saving} onClick={onSave}>
           Salva
@@ -1119,6 +1334,12 @@ function NoteView({
         }}
         dangerouslySetInnerHTML={{ __html: html }}
       />
+      {note.files.length ? (
+        <div className="note-files">
+          <h4>Allegati</h4>
+          <FileChips files={note.files} />
+        </div>
+      ) : null}
       {backlinks.length ? (
         <div className="backlinks">
           <h4>Collegata da</h4>

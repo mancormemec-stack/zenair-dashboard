@@ -1,6 +1,7 @@
 import { supabase, emailFor } from "./supabase";
 
 export type Member = { username: string; name: string; is_owner: boolean };
+export type Attachment = { name: string; url: string };
 export type Quest = {
   id: string;
   title: string;
@@ -20,6 +21,7 @@ export type QuestMessage = {
   kind: string;
   text: string;
   links: string[];
+  files: Attachment[];
   created_at: string;
   eval_score: number | null;
   eval_missing: string | null;
@@ -29,12 +31,28 @@ export type Note = {
   id: string;
   title: string;
   body: string;
+  files: Attachment[];
   created_by: string;
   updated_by: string;
   updated_at: string;
 };
+export type ActivityItem = {
+  id: string;
+  kind: "quest" | "note";
+  at: string;
+  who: string;
+  text: string;
+  targetId: string;
+  targetTitle: string;
+};
 
 const nowIso = () => new Date().toISOString();
+const asArray = (v: unknown): unknown[] => (Array.isArray(v) ? v : []);
+const asFiles = (v: unknown): Attachment[] =>
+  asArray(v).filter(
+    (x): x is Attachment =>
+      !!x && typeof x === "object" && typeof (x as Attachment).url === "string",
+  );
 
 /* ---------------- auth ---------------- */
 
@@ -66,6 +84,17 @@ export async function changePassword(next: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+/* ---------------- file ---------------- */
+
+export async function uploadFile(folder: "quests" | "notes", id: string, file: File): Promise<Attachment> {
+  const safe = file.name.replace(/[^\w.\- ]+/g, "_").slice(0, 80);
+  const path = `${folder}/${id || "nuova"}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safe}`;
+  const { error } = await supabase.storage.from("files").upload(path, file, { upsert: false });
+  if (error) throw new Error("Upload fallito: " + error.message);
+  const { data } = supabase.storage.from("files").getPublicUrl(path);
+  return { name: file.name, url: data.publicUrl };
+}
+
 /* ---------------- quests ---------------- */
 
 export async function listQuests(me: Member): Promise<Quest[]> {
@@ -86,12 +115,14 @@ export async function questThread(questId: string): Promise<QuestMessage[]> {
     .eq("quest_id", questId)
     .order("created_at", { ascending: true });
   if (error) throw new Error(error.message);
-  return (data ?? []).map((m) => ({
-    ...(m as Omit<QuestMessage, "links">),
-    links: Array.isArray((m as { links: unknown }).links)
-      ? ((m as { links: string[] }).links)
-      : [],
-  }));
+  return (data ?? []).map((m) => {
+    const row = m as Record<string, unknown>;
+    return {
+      ...(m as QuestMessage),
+      links: asArray(row.links) as string[],
+      files: asFiles(row.files),
+    };
+  });
 }
 
 export async function createQuest(
@@ -113,7 +144,7 @@ export async function createQuest(
     .select("id")
     .single();
   if (error) throw new Error(error.message);
-  await addMessage(data.id, me.username, "status", `${me.name} ha creato la quest.`, []);
+  await addMessage(data.id, me.username, "status", `${me.name} ha creato la quest.`, [], []);
   return data.id as string;
 }
 
@@ -128,10 +159,15 @@ async function addMessage(
   kind: string,
   text: string,
   links: string[],
+  files: Attachment[],
 ): Promise<string> {
+  // include `files` solo se c'è qualcosa: così il commento normale funziona
+  // anche se la colonna `files` non è ancora stata aggiunta (upgrade3.sql).
+  const payload: Record<string, unknown> = { quest_id: questId, author, kind, text, links };
+  if (files.length) payload.files = files;
   const { data, error } = await supabase
     .from("quest_messages")
-    .insert({ quest_id: questId, author, kind, text, links })
+    .insert(payload)
     .select("id")
     .single();
   if (error) throw new Error(error.message);
@@ -141,14 +177,19 @@ async function addMessage(
 
 export async function postMessage(
   me: Member,
-  v: { questId: string; kind: "comment" | "submission"; text: string; links: string[] },
+  v: {
+    questId: string;
+    kind: "comment" | "submission";
+    text: string;
+    links: string[];
+    files: Attachment[];
+  },
 ): Promise<void> {
   const links = v.links.map((l) => l.trim()).filter(Boolean);
-  if (!v.text.trim() && !links.length) throw new Error("Messaggio vuoto.");
-  const msgId = await addMessage(v.questId, me.username, v.kind, v.text.trim(), links);
+  if (!v.text.trim() && !links.length && !v.files.length) throw new Error("Messaggio vuoto.");
+  const msgId = await addMessage(v.questId, me.username, v.kind, v.text.trim(), links, v.files);
   if (v.kind === "submission") {
     if (!me.is_owner) await setStatus(me, { questId: v.questId, status: "inviata" });
-    // valutazione AI in background: se fallisce, la quest resta comunque inviata
     try {
       await evaluateMessage(v.questId, msgId);
     } catch {
@@ -157,7 +198,7 @@ export async function postMessage(
   }
 }
 
-/** Chiama la Edge Function "evaluate" e salva il risultato sul messaggio. */
+/** Chiama la Edge Function e salva il risultato sul messaggio. */
 export async function evaluateMessage(questId: string, messageId: string): Promise<void> {
   const [{ data: quest }, { data: msg }] = await Promise.all([
     supabase.from("quests").select("title, brief").eq("id", questId).maybeSingle(),
@@ -170,7 +211,7 @@ export async function evaluateMessage(questId: string, messageId: string): Promi
       questTitle: quest.title,
       questBrief: quest.brief,
       submissionText: msg.text,
-      links: Array.isArray(msg.links) ? msg.links : [],
+      links: asArray(msg.links),
     },
   });
   if (error) throw new Error(error.message);
@@ -198,7 +239,7 @@ export async function setStatus(
     .eq("id", v.questId);
   if (error) throw new Error(error.message);
   const note = v.note?.trim() || defaultNote(v.status, me.name);
-  if (note) await addMessage(v.questId, "system", "status", note, []);
+  if (note) await addMessage(v.questId, "system", "status", note, [], []);
 }
 
 function defaultNote(status: string, name: string): string {
@@ -221,20 +262,26 @@ function defaultNote(status: string, name: string): string {
 export async function listNotes(): Promise<Note[]> {
   const { data, error } = await supabase
     .from("notes")
-    .select("id, title, body, created_by, updated_by, updated_at")
+    .select("*")
     .order("updated_at", { ascending: false });
   if (error) throw new Error(error.message);
-  return (data ?? []) as Note[];
+  return (data ?? []).map((n) => ({ ...(n as Note), files: asFiles((n as Record<string, unknown>).files) }));
 }
 
 export async function saveNote(
   me: Member,
-  v: { id?: string; title: string; body: string },
+  v: { id?: string; title: string; body: string; files: Attachment[] },
 ): Promise<string> {
   if (v.id) {
     const { error } = await supabase
       .from("notes")
-      .update({ title: v.title.trim(), body: v.body, updated_by: me.username, updated_at: nowIso() })
+      .update({
+        title: v.title.trim(),
+        body: v.body,
+        files: v.files,
+        updated_by: me.username,
+        updated_at: nowIso(),
+      })
       .eq("id", v.id);
     if (error) throw new Error(error.message);
     return v.id;
@@ -244,6 +291,7 @@ export async function saveNote(
     .insert({
       title: v.title.trim(),
       body: v.body,
+      files: v.files,
       created_by: me.username,
       updated_by: me.username,
       updated_at: nowIso(),
@@ -257,4 +305,51 @@ export async function saveNote(
 export async function deleteNote(id: string): Promise<void> {
   const { error } = await supabase.from("notes").delete().eq("id", id);
   if (error) throw new Error(error.message);
+}
+
+/* ---------------- bacheca ---------------- */
+
+export async function recentActivity(): Promise<ActivityItem[]> {
+  const [{ data: msgs }, { data: notes }] = await Promise.all([
+    supabase
+      .from("quest_messages")
+      .select("id, author, kind, text, created_at, quest_id, quests(title)")
+      .neq("kind", "status")
+      .order("created_at", { ascending: false })
+      .limit(15),
+    supabase
+      .from("notes")
+      .select("id, title, updated_by, updated_at")
+      .order("updated_at", { ascending: false })
+      .limit(8),
+  ]);
+
+  const items: ActivityItem[] = [];
+  for (const m of msgs ?? []) {
+    const row = m as Record<string, unknown>;
+    const q = row.quests as { title?: string } | { title?: string }[] | null;
+    const title = Array.isArray(q) ? q[0]?.title : q?.title;
+    items.push({
+      id: "m" + String(row.id),
+      kind: "quest",
+      at: String(row.created_at),
+      who: String(row.author),
+      text: row.kind === "submission" ? "ha inviato un risultato" : "ha commentato",
+      targetId: String(row.quest_id),
+      targetTitle: title ?? "una quest",
+    });
+  }
+  for (const n of notes ?? []) {
+    const row = n as Record<string, unknown>;
+    items.push({
+      id: "n" + String(row.id),
+      kind: "note",
+      at: String(row.updated_at),
+      who: String(row.updated_by),
+      text: "ha aggiornato la nota",
+      targetId: String(row.id),
+      targetTitle: String(row.title),
+    });
+  }
+  return items.sort((a, b) => (a.at < b.at ? 1 : -1)).slice(0, 14);
 }
