@@ -30,6 +30,7 @@ export type QuestMessage = {
 export type Note = {
   id: string;
   title: string;
+  section: string;
   body: string;
   files: Attachment[];
   created_by: string;
@@ -265,18 +266,27 @@ export async function listNotes(): Promise<Note[]> {
     .select("*")
     .order("updated_at", { ascending: false });
   if (error) throw new Error(error.message);
-  return (data ?? []).map((n) => ({ ...(n as Note), files: asFiles((n as Record<string, unknown>).files) }));
+  return (data ?? []).map((n) => {
+    const row = n as Record<string, unknown>;
+    return {
+      ...(n as Note),
+      section: (typeof row.section === "string" && row.section.trim()) || "Generale",
+      files: asFiles(row.files),
+    };
+  });
 }
 
 export async function saveNote(
   me: Member,
-  v: { id?: string; title: string; body: string; files: Attachment[] },
+  v: { id?: string; title: string; section: string; body: string; files: Attachment[] },
 ): Promise<string> {
+  const section = v.section.trim() || "Generale";
   if (v.id) {
     const { error } = await supabase
       .from("notes")
       .update({
         title: v.title.trim(),
+        section,
         body: v.body,
         files: v.files,
         updated_by: me.username,
@@ -290,6 +300,7 @@ export async function saveNote(
     .from("notes")
     .insert({
       title: v.title.trim(),
+      section,
       body: v.body,
       files: v.files,
       created_by: me.username,

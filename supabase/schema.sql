@@ -88,6 +88,7 @@ create index if not exists idx_quest_messages_quest on public.quest_messages(que
 create table if not exists public.notes (
   id         uuid primary key default gen_random_uuid(),
   title      text not null,
+  section    text not null default 'Generale',
   body       text not null default '',
   created_by text not null,
   created_at timestamptz not null default now(),
